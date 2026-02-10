@@ -1,0 +1,109 @@
+{% extends "base_student.html" %}
+{% load static %}
+
+{% block title %}Dashboard del Estudiante{% endblock %}
+
+{% block extra_head %}
+<style>
+.glass-panel {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+.dark .glass-panel {
+    background: rgba(31, 41, 55, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-12">
+
+<header class="flex flex-col md:flex-row justify-between items-end pb-4 border-b border-gray-200 dark:border-gray-700">
+<div>
+<h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+Bienvenido, {{ student.get_full_name }}
+</h1>
+<p class="text-lg text-gray-500 dark:text-gray-400">
+Continúa donde lo dejaste.
+</p>
+</div>
+
+<div class="mt-4 md:mt-0">
+<span class="text-sm font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full">
+{% for enrollment in student.enrollments.all %}
+    {% if enrollment.offering.term.active %}
+        {{ enrollment.offering.term.name }}
+    {% endif %}
+{% endfor %}
+</span>
+</div>
+</header>
+
+<section>
+<h2 class="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-8 flex items-center">
+<span class="material-symbols-outlined mr-3 text-blue-600 dark:text-blue-400">dashboard</span>
+Mis Cursos Activos
+</h2>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+{% for data in courses_data %}
+<article class="glass-panel rounded-3xl transition-all duration-300 flex flex-col overflow-hidden border border-white/40 dark:border-white/10">
+
+<div class="h-48 overflow-hidden relative">
+<img src="{{ data.course.image_url|default:'https://via.placeholder.com/400x200' }}"
+     alt="{{ data.course.name }}"
+     class="w-full h-full object-cover"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+<div class="absolute bottom-4 left-6 text-white">
+<span class="bg-blue-600/90 text-xs font-bold px-2 py-1 rounded-md">
+{{ data.course.code }}
+</span>
+</div>
+</div>
+
+<div class="p-8 flex flex-col flex-grow">
+<h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+{{ data.course.name }}
+</h3>
+
+<div class="flex items-center text-gray-500 dark:text-gray-400 mb-6 text-sm font-medium">
+<span class="material-symbols-outlined text-lg mr-2">person</span>
+{% for teacher in data.offering.teachers.all %}
+{{ teacher.get_full_name }}{% if not forloop.last %}, {% endif %}
+{% endfor %}
+</div>
+
+<div class="mt-auto">
+<div class="flex justify-between text-sm font-bold text-gray-600 dark:text-gray-300 mb-2">
+<span>Progreso del Curso</span>
+<span class="text-blue-600 dark:text-blue-400">{{ data.progress }}%</span>
+</div>
+
+<div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 mb-8">
+<div class="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full"
+     style="width: {{ data.progress }}%">
+</div>
+</div>
+
+<a href="{% url 'course_detail' data.offering.id %}"
+   class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold py-4 px-6 rounded-2xl shadow-lg flex justify-center items-center space-x-2">
+<span>Continuar</span>
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+</a>
+
+</div>
+</div>
+</article>
+{% endfor %}
+
+</div>
+</section>
+
+</main>
+
+{% endblock %}

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" class="transition-colors duration-200">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>{% block title %}EduAccess{% endblock %}</title>
+
+<!-- 🌙 DARK MODE PERSISTENTE -->
+<script>
+(function () {
+  if (localStorage.getItem("darkMode") === "true") {
+      document.documentElement.classList.add("dark");
+  }
+})();
+</script>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<script>
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                primary: "#3b82f6",
+                "primary-dark": "#1d4ed8",
+                "accent": "#4f46e5",
+                "background-light": "#f0f2f5",
+                "background-dark": "#111827",
+                "text-light": "#1f2937",
+                "text-dark": "#f9fafb",
+            },
+            fontFamily: {
+                display: ["Inter", "sans-serif"],
+            }
+        },
+    },
+};
+</script>
+
+{% block extra_head %}{% endblock %}
+    <style>
+/* =========================
+   ACCESIBILIDAD GLOBAL
+   ========================= */
+
+/* ALTO CONTRASTE REAL */
+.high-contrast {
+    filter: contrast(1.25) saturate(1.4);
+}
+
+/* TAMAÑOS DE FUENTE GLOBALES */
+.font-small  { font-size: 14px; }
+.font-normal { font-size: 16px; }
+.font-large  { font-size: 18px; }
+.font-xlarge { font-size: 20px; }
+.font-xxlarge{ font-size: 22px; }
+
+/* Escalar headings automáticamente */
+.font-small  h1 { font-size: 1.6rem; }
+.font-normal h1 { font-size: 1.8rem; }
+.font-large  h1 { font-size: 2.1rem; }
+.font-xlarge h1 { font-size: 2.4rem; }
+.font-xxlarge h1{ font-size: 2.7rem; }
+
+.font-small  h2 { font-size: 1.3rem; }
+.font-normal h2 { font-size: 1.5rem; }
+.font-large  h2 { font-size: 1.7rem; }
+.font-xlarge h2 { font-size: 1.9rem; }
+.font-xxlarge h2{ font-size: 2.1rem; }
+
+/* Inputs y botones también crecen */
+.font-large input,
+.font-xlarge input,
+.font-xxlarge input,
+.font-large button,
+.font-xlarge button,
+.font-xxlarge button {
+    font-size: 1em;
+}
+</style>
+
+</head>
+
+<body
+class="
+bg-background-light dark:bg-background-dark
+font-display text-text-light dark:text-text-dark
+min-h-screen flex flex-col transition-all duration-300
+
+{% if accessibility.high_contrast %} high-contrast {% endif %}
+
+{% if accessibility.font_size == 1 %} font-small
+{% elif accessibility.font_size == 2 %} font-normal
+{% elif accessibility.font_size == 3 %} font-large
+{% elif accessibility.font_size == 4 %} font-xlarge
+{% elif accessibility.font_size == 5 %} font-xxlarge
+{% endif %}
+">
+
+
+{% include "components/navbar_student.html" %}
+
+{% block content %}{% endblock %}
+
+</body>
+</html>

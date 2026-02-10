@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>{{ course.name }}</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
+<style>
+.navbar-gradient {
+  background: linear-gradient(90deg,#1e3a8a,#2563eb,#3b82f6);
+}
+.active-module-gradient {
+  background: linear-gradient(135deg,#2563eb,#3b82f6);
+}
+</style>
+</head>
+
+<body class="bg-slate-50 font-[Lexend]">
+
+<!-- NAVBAR -->
+<nav class="h-16 flex items-center justify-between px-6 navbar-gradient text-white shadow-md sticky top-0 z-50">
+    <span class="text-xl font-bold">EduAccess</span>
+    <span>{{ request.user.get_full_name }}</span>
+</nav>
+
+<div class="flex h-[calc(100vh-4rem)]">
+
+<!-- SIDEBAR MÓDULOS -->
+<aside class="w-80 bg-white border-r overflow-y-auto">
+    <div class="p-6">
+        <h2 class="font-bold mb-4">{{ course.name }}</h2>
+
+        {% for module in modules %}
+        <a href="{% url 'course_module_detail' offering.id module.id %}"
+           class="block p-3 rounded-lg mb-2
+           {% if module.id == active_module.id %}
+               active-module-gradient text-white
+           {% else %}
+               hover:bg-gray-100
+           {% endif %}">
+           
+            <p class="text-xs">Módulo {{ module.order }}</p>
+            <p class="font-bold">{{ module.title }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</aside>
+
+<!-- CONTENIDO DEL MÓDULO -->
+<main class="flex-1 overflow-y-auto">
+
+<header class="bg-white shadow p-10">
+    <h1 class="text-4xl font-bold mb-3">
+        {{ active_module.title }}
+    </h1>
+    <p class="text-gray-500">
+        {{ active_module.description }}
+    </p>
+</header>
+
+<section class="p-10 space-y-6">
+
+<h2 class="text-2xl font-bold">Materiales</h2>
+
+{% for material in materials %}
+<div class="bg-white p-6 rounded-xl shadow flex justify-between items-center">
+
+    <div>
+        <p class="font-bold text-lg">{{ material.title }}</p>
+        <p class="text-gray-500 text-sm">{{ material.get_material_type_display }}</p>
+    </div>
+
+    <a href="{{ material.file.url }}" target="_blank"
+       class="bg-blue-600 text-white px-6 py-2 rounded-lg">
+       Abrir
+    </a>
+
+</div>
+{% empty %}
+<p>No hay materiales aún.</p>
+{% endfor %}
+
+</section>
+</main>
+</div>
+</body>
+</html>

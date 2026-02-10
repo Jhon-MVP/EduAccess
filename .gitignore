@@ -1,0 +1,29 @@
+# --- Byte-compiled / Optimizados / DLLs ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Entornos Virtuales (Virtual Envs) ---
+# Nombres comunes para la carpeta del entorno virtual
+venv/
+env/
+.env/
+.venv/
+
+# --- PyCharm ---
+# Configuración local del IDE que no le sirve a otros
+.idea/
+
+# --- Bases de datos locales ---
+# Importante para no subir tu base de datos de prueba por error
+*.sqlite3
+*.db
+
+# --- Seguridad y Variables de Entorno ---
+# CRÍTICO: Nunca subas tus claves secretas
+.env
+.env.local
+config.py
+
+# --- Logs y Errores ---
+*.log

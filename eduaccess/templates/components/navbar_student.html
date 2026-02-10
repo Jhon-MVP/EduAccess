@@ -1,0 +1,88 @@
+<nav class="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-900 dark:to-indigo-900 text-white shadow-lg sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex justify-between h-20 items-center">
+
+<!-- LOGO -->
+<div class="flex items-center space-x-8">
+<a href="{% url 'student_home' %}" class="flex-shrink-0 flex items-center space-x-2 hover:opacity-90 transition">
+<span class="material-symbols-outlined text-4xl">school</span>
+<span class="text-2xl font-bold tracking-tight">EduAccess</span>
+</a>
+</div>
+
+<div class="flex items-center space-x-4">
+
+<!-- BOTON DARK MODE -->
+<button onclick="toggleDarkMode()"
+class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition backdrop-blur-sm"
+title="Cambiar tema">
+<span class="material-symbols-outlined block dark:hidden">dark_mode</span>
+<span class="material-symbols-outlined hidden dark:block">light_mode</span>
+</button>
+
+<!-- PERFIL DROPDOWN -->
+<div class="relative">
+
+<button onclick="toggleProfileMenu()"
+class="flex items-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition backdrop-blur-sm focus:outline-none">
+
+<img class="w-8 h-8 rounded-full border-2 border-white/50"
+src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5NQ26Ab4QwPfZ2LDe2u03_rD3JbFbQc-chr7p_l1X2412f1TIIby9rdZnPwhP2jHi81_lmjbf-fi03Yd3QmgwSRvyUejWS3XbBmMpHC7phqSHNSvg0KwVzxbgWdFTYL6PrAMKTy94y6BOpeJgk82V1wQDR2UXGc-qldQ6sj-zmPVVTR1KyNs7nSmQwdpaV6Lgh5TNWVJtmBHTDWDwgvtw7tMPiPMcaXgjt5lsS6HzSjaRoGsyQUTOPGAvFKDkiPHCrd2y-5KpsSeR"/>
+
+<span class="font-medium hidden sm:block">
+{{ request.user.get_full_name }}
+</span>
+
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+
+<!-- MENU -->
+<div id="profileMenu"
+class="hidden absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+
+<!-- ⭐ ESTE ERA EL PROBLEMA -->
+<a href="{% url 'student_profile' %}"
+class="flex items-center gap-3 px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200">
+<span class="material-symbols-outlined">person</span>
+Mi perfil
+</a>
+
+<form method="POST" action="{% url 'logout' %}">
+{% csrf_token %}
+<button type="submit"
+class="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined">logout</span>
+Cerrar sesión
+</button>
+</form>
+
+</div>
+</div>
+
+</div>
+</div>
+</div>
+</nav>
+
+<script>
+function toggleDarkMode() {
+  const html = document.documentElement;
+  html.classList.toggle("dark");
+  localStorage.setItem("darkMode", html.classList.contains("dark"));
+}
+
+if (localStorage.getItem("darkMode") === "true") {
+  document.documentElement.classList.add("dark");
+}
+
+function toggleProfileMenu() {
+  document.getElementById("profileMenu").classList.toggle("hidden");
+}
+
+window.addEventListener("click", function(e) {
+  const menu = document.getElementById("profileMenu");
+  if (!e.target.closest(".relative")) {
+    menu.classList.add("hidden");
+  }
+});
+</script>

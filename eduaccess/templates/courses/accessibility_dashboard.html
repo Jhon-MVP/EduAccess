@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Dashboard de Accesibilidad</h1>
+
+<table border="1" cellpadding="6" cellspacing="0">
+    <thead>
+        <tr>
+            <th>Módulo</th>
+            <th>% Texto</th>
+            <th>% Alt Text</th>
+            <th>% Subtítulos</th>
+            <th>Accesible</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in dashboard_data %}
+        <tr>
+            <td>{{ item.module.title }}</td>
+            <td>{{ item.has_text|default:"-"|floatformat:1 }}%</td>
+            <td>{{ item.has_alt_text|default:"-"|floatformat:1 }}%</td>
+            <td>{{ item.has_captions|default:"-"|floatformat:1 }}%</td>
+            <td>
+                {% if item.overall_accessible %}
+                    ✅
+                {% else %}
+                    ❌
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No hay módulos registrados.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
+
+{% for module in modules %}
+<h2>Módulo: {{ module.title }}</h2>
+<ul>
+    {% with summary=module.accessibility_summary %}
+    <li>Textos: {{ summary.has_text }}%</li>
+    <li>Alt Text: {{ summary.has_alt_text }}%</li>
+    <li>Subtítulos: {{ summary.has_captions }}%</li>
+    <li>Accesible global: {{ summary.overall_accessible }}</li>
+    {% endwith %}
+</ul>
+{% endfor %}

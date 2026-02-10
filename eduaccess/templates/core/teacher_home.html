@@ -1,0 +1,110 @@
+{% extends "base_student.html" %}
+{% load static %}
+
+{% block title %}Panel Docente{% endblock %}
+
+{% block extra_head %}
+<script>
+tailwind.config = {
+    darkMode: "class",
+    theme: {
+        extend: {
+            colors: {
+                primary: "#135bec",
+                "primary-dark": "#0e44b3",
+            },
+            fontFamily: { display: ["Lexend","sans-serif"] }
+        },
+    },
+};
+</script>
+
+<style>
+.macos-card {
+    background: rgba(255,255,255,.7);
+    backdrop-filter: blur(12px);
+    border:1px solid rgba(255,255,255,.5);
+}
+.dark .macos-card {
+    background: rgba(30,41,59,.7);
+    border:1px solid rgba(255,255,255,.1);
+}
+.btn-gradient {
+    background: linear-gradient(135deg,#135bec 0%,#0e44b3 100%);
+}
+.btn-gradient:hover { opacity:.9; }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<main class="max-w-7xl mx-auto px-6 py-12">
+
+<!-- HEADER -->
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+
+<div>
+    <h1 class="text-4xl font-extrabold tracking-tight">
+        Gestión Académica
+    </h1>
+    <p class="text-gray-500 dark:text-gray-400 mt-2 text-lg">
+        Administra tus cursos y materiales didácticos.
+    </p>
+</div>
+
+<button class="btn-gradient text-white px-7 py-3.5 rounded-2xl flex items-center space-x-2 shadow-xl">
+    <span class="material-symbols-outlined">add_circle</span>
+    <span class="font-bold text-sm uppercase">Subir Recurso</span>
+</button>
+
+</div>
+
+
+<!-- GRID CURSOS -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+{% for data in courses_data %}
+<div class="macos-card rounded-3xl overflow-hidden flex flex-col">
+
+    <!-- header card -->
+    <div class="h-32 bg-primary/10 relative">
+        <span class="absolute bottom-4 left-6 bg-white/80 dark:bg-gray-800 px-3 py-1 rounded text-xs font-bold">
+            {{ data.offering.term.name }}
+        </span>
+    </div>
+
+    <div class="p-8 flex-1 flex flex-col">
+
+        <h3 class="text-xl font-bold mb-4">
+            {{ data.course.name }}
+        </h3>
+
+        <div class="text-gray-500 dark:text-gray-400 mb-8">
+            {{ data.students_count }} estudiantes inscritos
+        </div>
+
+        <div class="mt-auto space-y-3">
+
+            <a href="{% url 'accessibility_dashboard' data.offering.id %}"
+            class="w-full btn-gradient text-white py-3.5 rounded-xl flex justify-center font-bold">
+                Gestionar Contenido
+            </a>
+
+            <button class="w-full bg-gray-200 dark:bg-gray-700 py-3.5 rounded-xl font-bold">
+                Ver Estudiantes
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+{% empty %}
+<p>No tienes cursos asignados.</p>
+{% endfor %}
+
+</div>
+
+</main>
+
+{% endblock %}
