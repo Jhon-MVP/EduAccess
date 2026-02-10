@@ -43,69 +43,165 @@ tailwind.config = {
 </script>
 
 {% block extra_head %}{% endblock %}
-    <style>
-/* =========================
-   ACCESIBILIDAD GLOBAL
-   ========================= */
+<style>
 
-/* ALTO CONTRASTE REAL */
-.high-contrast {
-    filter: contrast(1.25) saturate(1.4);
+/* TAMAÑOS DE FUENTE */
+body.font-size-1 { font-size: 12px !important; }
+body.font-size-2 { font-size: 14px !important; }
+body.font-size-3 { font-size: 16px !important; }
+body.font-size-4 { font-size: 18px !important; }
+body.font-size-5 { font-size: 20px !important; }
+
+body.font-size-1 h1 { font-size: 1.5rem !important; }
+body.font-size-2 h1 { font-size: 1.75rem !important; }
+body.font-size-3 h1 { font-size: 2rem !important; }
+body.font-size-4 h1 { font-size: 2.25rem !important; }
+body.font-size-5 h1 { font-size: 2.5rem !important; }
+
+body.font-size-1 h2 { font-size: 1.3rem !important; }
+body.font-size-2 h2 { font-size: 1.5rem !important; }
+body.font-size-3 h2 { font-size: 1.75rem !important; }
+body.font-size-4 h2 { font-size: 2rem !important; }
+body.font-size-5 h2 { font-size: 2.25rem !important; }
+
+body.font-size-1 h3 { font-size: 1.1rem !important; }
+body.font-size-2 h3 { font-size: 1.25rem !important; }
+body.font-size-3 h3 { font-size: 1.5rem !important; }
+body.font-size-4 h3 { font-size: 1.75rem !important; }
+body.font-size-5 h3 { font-size: 2rem !important; }
+
+/* ============================= */
+/* 🔥 FIX REAL DEL ALTO CONTRASTE */
+/* ============================= */
+
+/* Fondo general */
+html.high-contrast-mode,
+html.high-contrast-mode body,
+body.high-contrast {
+    background-color: #000000 !important;
+    color: #FFFF00 !important;
 }
 
-/* TAMAÑOS DE FUENTE GLOBALES */
-.font-small  { font-size: 14px; }
-.font-normal { font-size: 16px; }
-.font-large  { font-size: 18px; }
-.font-xlarge { font-size: 20px; }
-.font-xxlarge{ font-size: 22px; }
-
-/* Escalar headings automáticamente */
-.font-small  h1 { font-size: 1.6rem; }
-.font-normal h1 { font-size: 1.8rem; }
-.font-large  h1 { font-size: 2.1rem; }
-.font-xlarge h1 { font-size: 2.4rem; }
-.font-xxlarge h1{ font-size: 2.7rem; }
-
-.font-small  h2 { font-size: 1.3rem; }
-.font-normal h2 { font-size: 1.5rem; }
-.font-large  h2 { font-size: 1.7rem; }
-.font-xlarge h2 { font-size: 1.9rem; }
-.font-xxlarge h2{ font-size: 2.1rem; }
-
-/* Inputs y botones también crecen */
-.font-large input,
-.font-xlarge input,
-.font-xxlarge input,
-.font-large button,
-.font-xlarge button,
-.font-xxlarge button {
-    font-size: 1em;
+/* ⭐ SOLO TEXTO Y CONTENEDORES — NO MEDIA ⭐ */
+html.high-contrast-mode *:not(img):not(video):not(svg):not(canvas):not(iframe),
+body.high-contrast *:not(img):not(video):not(svg):not(canvas):not(iframe) {
+    background-color: #000000 !important;
+    color: #FFFF00 !important;
 }
+
+/* ⭐ TODOS LOS BACKGROUNDS A NEGRO (SIN ROMPER PORTADAS) ⭐ */
+html.high-contrast-mode [class*="bg-"]:not(.course-image),
+body.high-contrast [class*="bg-"]:not(.course-image) {
+    background-color: #000000 !important;
+}
+
+/* NAVBAR Y SIDEBAR */
+html.high-contrast-mode nav,
+html.high-contrast-mode header,
+html.high-contrast-mode aside,
+body.high-contrast nav,
+body.high-contrast header,
+body.high-contrast aside {
+    background-color: #000000 !important;
+    border: 2px solid #FFFF00 !important;
+}
+
+/* BOTONES */
+html.high-contrast-mode button,
+body.high-contrast button {
+    background-color: #FFFF00 !important;
+    color: #000000 !important;
+    border: 3px solid #FFFFFF !important;
+    font-weight: bold !important;
+}
+
+html.high-contrast-mode button:hover,
+body.high-contrast button:hover {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+    border: 3px solid #FFFF00 !important;
+}
+
+/* LINKS */
+html.high-contrast-mode a,
+body.high-contrast a {
+    color: #00FFFF !important;
+    text-decoration: underline !important;
+}
+
+/* FORMULARIOS */
+html.high-contrast-mode input,
+html.high-contrast-mode select,
+html.high-contrast-mode textarea,
+body.high-contrast input,
+body.high-contrast select,
+body.high-contrast textarea {
+    background-color: #000000 !important;
+    color: #FFFF00 !important;
+    border: 2px solid #FFFF00 !important;
+}
+
+/* PROGRESS */
+html.high-contrast-mode [class*="progress"],
+body.high-contrast [class*="progress"] {
+    background-color: #1A1A1A !important;
+    border: 2px solid #FFFF00 !important;
+}
+html.high-contrast-mode [class*="progress"] > *,
+body.high-contrast [class*="progress"] > * {
+    background-color: #FFFF00 !important;
+}
+
+/* ICONOS */
+html.high-contrast-mode svg,
+html.high-contrast-mode .material-symbols-outlined,
+body.high-contrast svg,
+body.high-contrast .material-symbols-outlined {
+    fill: #FFFF00 !important;
+    color: #FFFF00 !important;
+}
+
+/* FOCUS WCAG */
+html.high-contrast-mode *:focus,
+body.high-contrast *:focus {
+    outline: 3px solid #00FFFF !important;
+    outline-offset: 2px !important;
+}
+
+/* 🚨 CLAVE: RESTAURAR IMÁGENES 🚨 */
+.high-contrast img,
+.high-contrast video {
+    background: transparent !important;
+    filter: none !important;
+}
+
+/* CONTENEDOR DE PORTADAS */
+.course-image {
+    background: transparent !important;
+}
+
 </style>
-
 </head>
 
-<body
-class="
+<body class="
 bg-background-light dark:bg-background-dark
 font-display text-text-light dark:text-text-dark
 min-h-screen flex flex-col transition-all duration-300
-
-{% if accessibility.high_contrast %} high-contrast {% endif %}
-
-{% if accessibility.font_size == 1 %} font-small
-{% elif accessibility.font_size == 2 %} font-normal
-{% elif accessibility.font_size == 3 %} font-large
-{% elif accessibility.font_size == 4 %} font-xlarge
-{% elif accessibility.font_size == 5 %} font-xxlarge
-{% endif %}
+{% if accessibility.high_contrast %}high-contrast high-contrast-mode{% endif %}
+font-size-{{ accessibility.font_size|default:'3' }}
 ">
 
-
 {% include "components/navbar_student.html" %}
-
 {% block content %}{% endblock %}
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const highContrast = {{ accessibility.high_contrast|yesno:"true,false" }};
+    if (highContrast) {
+        document.documentElement.classList.add('high-contrast-mode');
+    }
+});
+</script>
 
 </body>
 </html>

@@ -27,3 +27,6 @@ config.py
 
 # --- Logs y Errores ---
 *.log
+
+*.mp4
+*.pdf

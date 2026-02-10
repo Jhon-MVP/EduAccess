@@ -14,6 +14,12 @@ class Course(models.Model):
     description = models.TextField(blank=True)
     credits = models.PositiveSmallIntegerField()
     active = models.BooleanField(default=True)
+    # ⭐ NUEVO CAMPO
+    image = models.ImageField(
+        upload_to="courses/",
+        blank=True,
+        null=True
+    )
 
     class Meta:
         ordering = ["code"]

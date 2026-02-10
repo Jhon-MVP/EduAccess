@@ -1,16 +1,39 @@
 from django.contrib import admin
 from .models import Course, AcademicTerm, CourseOffering, Enrollment, Module, Material, ModuleProgress
 from django.conf import settings
+from django.utils.html import format_html
 
 User = settings.AUTH_USER_MODEL
 
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ("code", "name", "credits", "active")
+    list_display = ("code", "name", "credits", "active", "preview_image")
     list_filter = ("active",)
     search_fields = ("code", "name")
     ordering = ("code",)
+
+    fields = (
+        "code",
+        "name",
+        "description",
+        "credits",
+        "active",
+        "image",
+        "preview_image",
+    )
+
+    readonly_fields = ("preview_image",)
+
+    def preview_image(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" style="height:80px;border-radius:10px;" />',
+                obj.image.url
+            )
+        return "Sin imagen"
+
+    preview_image.short_description = "Vista previa"
 
 
 @admin.register(AcademicTerm)
