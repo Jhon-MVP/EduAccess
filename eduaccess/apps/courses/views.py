@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import CourseOffering, Module, ModuleProgress, Content  # Importamos Content
+from .models import CourseOffering, Module, ModuleProgress, Content
 from django.utils import timezone
 from django.contrib import messages
+from django.http import HttpResponse
 
 # DASHBOARD DOCENTE DE ACCESIBILIDAD
 @login_required
@@ -211,3 +212,26 @@ def delete_content(request, offering_id, content_id):
         content.delete()
         messages.success(request, "Recurso eliminado del curso.")
     return redirect("upload_course_content", offering_id=offering_id)
+
+
+@login_required
+def download_transcription_txt(request, content_id):
+    """
+    Toma el texto de un contenido (como una transcripción de un PDF)
+    y lo envía al navegador como un archivo .txt descargable.
+    """
+    content = get_object_or_404(Content, id=content_id)
+
+    # Extraemos el texto, o ponemos un mensaje si está vacío
+    texto = content.ai_accessibility_text if content.ai_accessibility_text else "No hay transcripción OCR disponible."
+    # Preparamos la respuesta indicando el tipo de archivo (texto plano)
+    response = HttpResponse(texto, content_type='text/plain; charset=utf-8')
+
+    # Limpiamos el título para que no tenga caracteres raros en el nombre del archivo
+    safe_title = "".join([c for c in content.title if c.isalnum() or c == ' ']).rstrip()
+    filename = f"{safe_title.replace(' ', '_')}_transcripcion.txt"
+
+    # Configuramos los headers para forzar la descarga
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+
+    return response
