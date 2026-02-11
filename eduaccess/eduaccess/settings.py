@@ -96,7 +96,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # -------------------------------------------------
 # INTERNATIONALIZATION
 # -------------------------------------------------
-LANGUAGE_CODE = 'es-es'
+LANGUAGE_CODE = 'es-EC'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
@@ -115,3 +115,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # -------------------------------------------------
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/users/login/"
+
+# Al final de eduaccess/settings.py
+GEMINI_API_KEY = 'AIzaSyCKOLAknSQajGqk31cJDIiIE0UlKyUnyYk'

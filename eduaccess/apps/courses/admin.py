@@ -68,6 +68,9 @@ class ContentAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 20, 'style': 'width: 90%;'})},
     }
+    fields = ('module', 'title', 'content_type', 'text_content', 'video_url', 'file_upload', 'order',
+              'ai_accessibility_text', 'is_processed_by_ia')
+    readonly_fields = ('is_processed_by_ia',)
 
 admin.site.register(Material)
 admin.site.register(ModuleProgress)

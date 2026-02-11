@@ -236,6 +236,16 @@ class Content(models.Model):
     order = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    ai_accessibility_text = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Aquí se guardará el OCR del PDF o la descripción de la imagen generada por IA."
+    )
+    is_processed_by_ia = models.BooleanField(
+        default=False,
+        help_text="Indica si la IA ya analizó este contenido."
+    )
+
     class Meta:
         ordering = ['order']
         verbose_name = "Contenido de Módulo"
@@ -260,3 +270,5 @@ class Content(models.Model):
                 self.video_url = f"https://www.youtube.com/embed/{video_id}"
 
         super().save(*args, **kwargs)
+
+
