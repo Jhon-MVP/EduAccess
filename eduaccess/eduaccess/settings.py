@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
     'accessibility.apps.AccessibilityConfig',
     'courses.apps.CoursesConfig',
+    'markdownify'
 ]
 
 # -------------------------------------------------

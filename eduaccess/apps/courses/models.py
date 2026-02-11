@@ -206,3 +206,57 @@ class ModuleProgress(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.module}"
+
+
+class Content(models.Model):
+    """
+    Representa el contenido individual dentro de un módulo.
+    Puede ser texto, video, imagen o evaluación.
+    """
+    TEXT = 'text'
+    VIDEO = 'video'
+    IMAGE = 'image'
+    FILE = 'file'
+    ASSESSMENT = 'assessment'
+
+    CONTENT_TYPES = [
+        (TEXT, 'Texto'),
+        (VIDEO, 'Video (YouTube/URL)'),
+        (IMAGE, 'Imagen'),
+        (FILE, 'Archivo PDF/Documento'),
+        (ASSESSMENT, 'Evaluación/Lección'),
+    ]
+
+    module = models.ForeignKey(Module, related_name='contents', on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    content_type = models.CharField(max_length=20, choices=CONTENT_TYPES, default=TEXT)
+    text_content = models.TextField(blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True)
+    file_upload = models.FileField(upload_to='course_materials/', blank=True, null=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name = "Contenido de Módulo"
+        verbose_name_plural = "Contenidos de Módulos"
+
+    def __str__(self):
+        return f"{self.get_content_type_display()}: {self.title}"
+
+    def save(self, *args, **kwargs):
+        """
+        Limpia la URL de YouTube para evitar el Error 153 y asegurar compatibilidad.
+        """
+        if self.content_type == self.VIDEO and self.video_url:
+            # Expresión regular para extraer el ID de 11 caracteres de YouTube
+            # Funciona con: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID
+            pattern = r'(?:v=|\/embed\/|\/watch\?v=|\/\?v=|\/v\/|\/e\/|youtu\.be\/|watch\?v%3D|watch\?feature=player_embedded&v=)([a-zA-Z0-9_-]{11})'
+            match = re.search(pattern, self.video_url)
+
+            if match:
+                video_id = match.group(1)
+                # Forzamos el formato de inserción (embed) que requiere el iframe
+                self.video_url = f"https://www.youtube.com/embed/{video_id}"
+
+        super().save(*args, **kwargs)

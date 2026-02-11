@@ -1,102 +1,73 @@
 from django.contrib import admin
-from .models import Course, AcademicTerm, CourseOffering, Enrollment, Module, Material, ModuleProgress
-from django.conf import settings
+from django.db import models
+from django.contrib.auth import get_user_model
 from django.utils.html import format_html
+from django.forms import Textarea
+from .models import (
+    Course, AcademicTerm, CourseOffering, Enrollment,
+    Module, Material, ModuleProgress, Content
+)
 
-User = settings.AUTH_USER_MODEL
+User = get_user_model()
 
+class ContentInline(admin.StackedInline):
+    model = Content
+    extra = 1
+    classes = ['collapse']
+    ordering = ('order',)
+    fieldsets = (
+        ("Configuración del Bloque", {
+            'fields': (('order', 'content_type'), 'title'),
+        }),
+        ("Contenido", {
+            'fields': ('text_content', 'video_url', 'file_upload'),
+        }),
+    )
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 15, 'style': 'width: 90%; font-family: monospace;'})},
+    }
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
     list_display = ("code", "name", "credits", "active", "preview_image")
-    list_filter = ("active",)
-    search_fields = ("code", "name")
-    ordering = ("code",)
-
-    fields = (
-        "code",
-        "name",
-        "description",
-        "credits",
-        "active",
-        "image",
-        "preview_image",
-    )
-
     readonly_fields = ("preview_image",)
-
     def preview_image(self, obj):
         if obj.image:
-            return format_html(
-                '<img src="{}" style="height:80px;border-radius:10px;" />',
-                obj.image.url
-            )
+            return format_html('<img src="{}" style="height:80px;border-radius:10px;" />', obj.image.url)
         return "Sin imagen"
-
-    preview_image.short_description = "Vista previa"
-
 
 @admin.register(AcademicTerm)
 class AcademicTermAdmin(admin.ModelAdmin):
     list_display = ("name", "start_date", "end_date", "active")
-    list_filter = ("active",)
-    ordering = ("-start_date",)
-
 
 @admin.register(CourseOffering)
 class CourseOfferingAdmin(admin.ModelAdmin):
-    list_display = ("course", "term", "published")  # CORRECCIÓN: nombre real del campo
-    list_filter = ("term", "published")
-    search_fields = ("course__name", "course__code")
+    list_display = ("course", "term", "published")
     filter_horizontal = ("teachers",)
-
     def formfield_for_manytomany(self, db_field, request, **kwargs):
         if db_field.name == "teachers":
-            UserModel = db_field.remote_field.model
-            kwargs["queryset"] = UserModel.objects.filter(
-                userprofile__role="TEACHER"
-            )
+            kwargs["queryset"] = User.objects.filter(userprofile__role="TEACHER")
         return super().formfield_for_manytomany(db_field, request, **kwargs)
-
 
 @admin.register(Enrollment)
 class EnrollmentAdmin(admin.ModelAdmin):
     list_display = ("student", "offering", "enrolled_at", "active")
-    list_filter = ("active", "offering__term")
-    search_fields = ("student__username",)
-
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "student":
-            UserModel = db_field.remote_field.model
-            kwargs["queryset"] = UserModel.objects.filter(
-                userprofile__role="STUDENT"
-            )
+            kwargs["queryset"] = User.objects.filter(userprofile__role="STUDENT")
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 @admin.register(Module)
 class ModuleAdmin(admin.ModelAdmin):
     list_display = ("title", "offering", "order")
-    list_filter = ("offering__term",)
-    ordering = ("offering", "order")
+    inlines = [ContentInline]
 
+@admin.register(Content)
+class ContentAdmin(admin.ModelAdmin):
+    list_display = ("title", "module", "content_type", "order")
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 20, 'style': 'width: 90%;'})},
+    }
 
-@admin.register(Material)
-class MaterialAdmin(admin.ModelAdmin):
-    list_display = (
-        "title",
-        "material_type",
-        "module",
-        "has_text",
-        "has_alt_text",
-        "has_captions",
-        "uploaded_at",
-    )
-    list_filter = ("material_type",)
-    search_fields = ("title",)
-
-@admin.register(ModuleProgress)
-class ModuleProgressAdmin(admin.ModelAdmin):
-    list_display = ("user", "module", "completed", "last_accessed")
-    list_filter = ("completed",)
-    search_fields = ("user__username", "module__title")
+admin.site.register(Material)
+admin.site.register(ModuleProgress)
