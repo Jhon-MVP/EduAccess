@@ -3,114 +3,101 @@
 
 {% block title %}Panel Docente - EduAccess{% endblock %}
 
-{% block extra_head %}
-<script>
-tailwind.config = {
-    darkMode: "class",
-    theme: {
-        extend: {
-            colors: {
-                primary: "#135bec",
-                "primary-dark": "#0e44b3",
-            },
-            fontFamily: { display: ["Lexend","sans-serif"] }
-        },
-    },
-};
-</script>
-
-<style>
-.macos-card {
-    background: rgba(255,255,255,.7);
-    backdrop-filter: blur(12px);
-    border:1px solid rgba(255,255,255,.5);
-}
-.dark .macos-card {
-    background: rgba(30,41,59,.7);
-    border:1px solid rgba(255,255,255,.1);
-}
-.btn-gradient {
-    background: linear-gradient(135deg,#135bec 0%,#0e44b3 100%);
-}
-.btn-gradient:hover { opacity:.9; }
-</style>
-{% endblock %}
-
 {% block content %}
-
 <main class="max-w-7xl mx-auto px-6 py-12">
 
-<div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
     <div>
-        <h1 class="text-4xl font-extrabold tracking-tight">
+        <h1 class="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white">
             Gestión Académica
         </h1>
         <p class="text-gray-500 dark:text-gray-400 mt-2 text-lg">
-            Administra tus cursos y verifica la accesibilidad de tus materiales.
+            Administra tus cursos, crea módulos y gestiona el contenido.
         </p>
     </div>
-
-    <button class="btn-gradient text-white px-7 py-3.5 rounded-2xl flex items-center space-x-2 shadow-xl">
-        <span class="material-symbols-outlined">add_circle</span>
-        <span class="font-bold text-sm uppercase">Subir Recurso</span>
-    </button>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
 {% for data in courses_data %}
-<div class="macos-card rounded-3xl overflow-hidden flex flex-col shadow-sm">
+<div class="bg-white dark:bg-gray-800 rounded-3xl overflow-hidden flex flex-col shadow-lg border border-gray-100 dark:border-gray-700 hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
 
-    <div class="h-32 bg-primary/10 relative">
-        <span class="absolute bottom-4 left-6 bg-white/80 dark:bg-gray-800 px-3 py-1 rounded text-xs font-bold">
-            {{ data.offering.term.name }}
-        </span>
+    <div class="h-56 relative w-full overflow-hidden bg-gray-900">
+        {% if data.course.image %}
+            <img src="{{ data.course.image.url }}" alt="{{ data.course.name }}" class="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-luminosity hover:mix-blend-normal transition-all duration-500">
+        {% else %}
+            <div class="absolute inset-0 w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600"></div>
+            <div class="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+        {% endif %}
 
-        <div class="absolute top-4 right-6">
+        <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 pointer-events-none"></div>
+
+        <div class="absolute top-4 left-4">
+            <span class="bg-black/60 backdrop-blur-md border border-white/10 text-white px-4 py-1.5 rounded-full text-[11px] font-bold tracking-widest shadow-sm">
+                {{ data.offering.term.name }}
+            </span>
+        </div>
+
+        <div class="absolute bottom-4 left-4">
             {% if data.offering.all_processed %}
-                <span class="flex items-center space-x-1 bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm">
-                    <span class="material-icons text-xs">check_circle</span>
+                <span class="inline-flex items-center space-x-1 bg-green-500 text-white px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-tight shadow-sm">
+                    <span class="material-symbols-outlined text-[14px]">check_circle</span>
                     <span>Accesible</span>
                 </span>
             {% else %}
-                <span class="flex items-center space-x-1 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter shadow-sm">
-                    <span class="material-icons text-xs animate-spin">psychology</span>
-                    <span>Procesando IA</span>
+                <span class="inline-flex items-center space-x-1 bg-[#f59e0b] text-white px-3 py-1.5 rounded-full text-[11px] font-black uppercase tracking-tight shadow-sm">
+                    <span class="material-symbols-outlined text-[14px]">sync</span>
+                    <span>Actualizado</span>
                 </span>
             {% endif %}
         </div>
     </div>
 
-    <div class="p-8 flex-1 flex flex-col">
-        <h3 class="text-xl font-bold mb-4">
+    <div class="p-6 md:p-8 flex-1 flex flex-col bg-white dark:bg-gray-800">
+        <h3 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white leading-tight">
             {{ data.course.name }}
         </h3>
 
-        <div class="text-gray-500 dark:text-gray-400 mb-6 flex items-center">
-            <span class="material-icons text-sm mr-2">groups</span>
-            {{ data.students_count }} estudiantes inscritos
+        <div class="flex items-center text-gray-500 dark:text-gray-400 mb-8 space-x-5 text-sm font-medium">
+            <div class="flex items-center">
+                <span class="material-symbols-outlined text-xl mr-2 text-blue-500">groups</span>
+                {{ data.students_count }} estudiantes inscritos
+            </div>
+            <div class="flex items-center">
+                <span class="material-symbols-outlined text-xl mr-2 text-indigo-500">view_module</span>
+                {{ data.offering.modules.count|default:"0" }} Módulos
+            </div>
         </div>
 
         <div class="mt-auto space-y-3">
-            <a href="{% url 'accessibility_dashboard' data.offering.id %}"
-               class="w-full btn-gradient text-white py-3.5 rounded-xl flex justify-center items-center font-bold transition-all">
-                <span class="material-icons mr-2 text-sm">settings_accessibility</span>
-                Gestionar Contenido
+            <a href="{% url 'upload_course_content' data.offering.id %}"
+               class="w-full bg-[#2563eb] text-white py-3.5 rounded-xl flex justify-center items-center font-bold hover:bg-blue-700 transition-colors shadow-md text-sm">
+                <span class="material-symbols-outlined mr-2 text-lg">settings</span>
+                Administrar Curso
             </a>
 
-            <button class="w-full bg-gray-200 dark:bg-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-300 transition-colors">
-                Ver Estudiantes
-            </button>
+            <div class="grid grid-cols-2 gap-3">
+                <a href="{% url 'accessibility_dashboard' data.offering.id %}"
+                   class="w-full bg-[#eff6ff] text-[#1d4ed8] dark:bg-blue-900/30 dark:text-blue-300 py-3 rounded-xl flex justify-center items-center font-bold hover:bg-blue-100 transition-colors text-sm">
+                    <span class="material-symbols-outlined mr-1.5 text-[18px]">monitoring</span>
+                    Métricas
+                </a>
+
+                <button class="w-full bg-gray-50 text-gray-700 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 py-3 rounded-xl flex justify-center items-center font-bold hover:bg-gray-100 transition-colors text-sm">
+                    <span class="material-symbols-outlined mr-1.5 text-[18px]">people</span>
+                    Alumnos
+                </button>
+            </div>
         </div>
     </div>
 </div>
 {% empty %}
-<div class="col-span-full text-center py-20">
-    <p class="text-gray-500">No tienes cursos asignados actualmente.</p>
+<div class="col-span-full text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-300 dark:border-gray-700">
+    <span class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 mb-4">folder_off</span>
+    <p class="text-gray-500 text-lg">No tienes cursos asignados actualmente.</p>
 </div>
 {% endfor %}
 
 </div>
 </main>
-
 {% endblock %}

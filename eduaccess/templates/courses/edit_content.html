@@ -1,0 +1,86 @@
+{% extends "base_student.html" %}
+{% load static %}
+
+{% block title %}Editar Recurso - {{ content.title }}{% endblock %}
+
+{% block content %}
+<main class="max-w-[1400px] mx-auto px-6 py-12">
+    <div class="flex items-center space-x-4 mb-8">
+        <a href="{% url 'upload_course_content' offering.id %}" class="w-12 h-12 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 dark:text-white">Editar Recurso</h1>
+            <p class="text-blue-600 dark:text-blue-400 font-bold">Módulo: {{ content.module.title }}</p>
+        </div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-900 p-8 md:p-12 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800">
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+
+            <div>
+                <label class="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-3">Título del Recurso</label>
+                <input type="text" name="title" value="{{ content.title }}" required class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-xl font-bold">
+            </div>
+
+            {% if content.content_type == 'text' %}
+                <div>
+                    <label class="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-3">Contenido de Texto</label>
+                    <textarea id="richTextArea" name="text_content" rows="12" class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white">{{ content.text_content }}</textarea>
+                </div>
+
+            {% elif content.content_type == 'video' %}
+                <div>
+                    <label class="block text-lg font-bold text-gray-700 dark:text-gray-300 mb-3">URL del Video de YouTube</label>
+                    <input type="url" name="video_url" value="{{ content.video_url }}" class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white text-lg">
+                </div>
+
+            {% elif content.content_type == 'image' or content.content_type == 'file' %}
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-8 rounded-3xl border-2 border-dashed border-blue-200 dark:border-blue-800">
+                    <label class="block text-lg font-bold text-blue-800 dark:text-blue-300 mb-3">Reemplazar Archivo Físico (Opcional)</label>
+
+                    <p class="text-base text-gray-600 dark:text-gray-400 mb-6 bg-white dark:bg-gray-800 p-4 rounded-xl border border-blue-100 dark:border-gray-700 inline-flex items-center shadow-sm">
+                        <span class="material-symbols-outlined mr-2 text-gray-400 text-xl">attach_file</span>
+                        Archivo actual: <span class="font-bold ml-2 text-gray-900 dark:text-white">{% if content.file_upload %}{{ content.file_upload.name|truncatechars:50 }}{% else %}Ninguno{% endif %}</span>
+                    </p>
+
+                    <input type="file" name="file_upload" class="w-full text-gray-900 cursor-pointer file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-base file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 dark:text-gray-300 file:transition-colors">
+                    <p class="mt-4 text-sm text-blue-600 dark:text-blue-400 flex items-center">
+                        <span class="material-symbols-outlined mr-2 text-[18px]">auto_awesome</span>
+                        <span class="font-bold mr-1">Aviso Importante:</span> Si subes un archivo nuevo, nuestra IA volverá a escanearlo y reemplazará la descripción o transcripción anterior.
+                    </p>
+                </div>
+            {% endif %}
+
+            <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 font-bold rounded-xl text-xl px-6 py-5 mt-8 shadow-xl transition-transform hover:-translate-y-0.5">
+                Guardar Cambios Definitivos
+            </button>
+        </form>
+    </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+<script>
+    // 1. Detectar modo oscuro
+    const isDarkMode = document.documentElement.classList.contains('dark');
+
+    tinymce.init({
+        selector: '#richTextArea',
+        plugins: 'lists link wordcount',
+        toolbar: 'blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link | removeformat',
+        menubar: false,
+        branding: false,
+        // 2. Aumentamos la altura a 500px para que sea proporcional al ancho
+        height: 500,
+        // 3. Aplicar modo oscuro si corresponde
+        skin: isDarkMode ? "oxide-dark" : "oxide",
+        content_css: isDarkMode ? "dark" : "default",
+        setup: function (editor) {
+            editor.on('change', function () {
+                editor.save();
+            });
+        }
+    });
+</script>
+{% endblock %}

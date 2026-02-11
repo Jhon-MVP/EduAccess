@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from .services.accessibility import analyze_material_accessibility
+import re
 
 User = settings.AUTH_USER_MODEL
 

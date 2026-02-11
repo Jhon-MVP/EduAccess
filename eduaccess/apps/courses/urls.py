@@ -12,16 +12,27 @@ urlpatterns = [
         name="course_module_detail"
     ),
 
-    # dashboard docente accesibilidad (opcional)
+    # dashboard docente accesibilidad
     path(
         "<int:offering_id>/accessibility/",
         views.accessibility_dashboard,
         name="accessibility_dashboard"
     ),
+
+    # completar modulo
     path(
         "<int:offering_id>/module/<int:module_id>/complete/",
         views.complete_module,
         name="complete_module"
-),
+    ),
 
+    # NUEVA RUTA: Para la página de subir material (Reemplaza a la vieja)
+    path(
+        "<int:offering_id>/upload/",
+        views.upload_course_content,
+        name="upload_course_content"
+    ),
+
+    path("<int:offering_id>/content/<int:content_id>/edit/", views.edit_content, name="edit_content"),
+    path("<int:offering_id>/content/<int:content_id>/delete/", views.delete_content, name="delete_content"),
 ]

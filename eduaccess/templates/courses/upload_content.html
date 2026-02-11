@@ -1,0 +1,244 @@
+{% extends "base_student.html" %}
+{% load static %}
+
+{% block title %}Administrar Curso - {{ offering.course.name }}{% endblock %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-6 py-12">
+    <div class="flex items-center space-x-4 mb-10">
+        <a href="{% url 'teacher_home' %}" class="w-12 h-12 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">arrow_back</span>
+        </a>
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 dark:text-white">Administrar Curso</h1>
+            <p class="text-blue-600 dark:text-blue-400 font-bold mt-1">{{ offering.course.name }} ({{ offering.term.name }})</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+        <div class="bg-green-100 dark:bg-green-900/30 border-l-4 border-green-500 text-green-700 dark:text-green-400 p-4 mb-8 rounded-2xl shadow-sm flex items-center">
+            <span class="material-symbols-outlined mr-2">check_circle</span>
+            <p class="font-bold">{{ message }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+
+        <div class="lg:col-span-2">
+            <div class="bg-white dark:bg-gray-900 p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800 relative overflow-hidden h-full">
+
+                <div class="absolute -left-10 -top-10 w-40 h-40 bg-blue-50 dark:bg-blue-900/20 rounded-full blur-3xl -z-10"></div>
+
+                <div class="flex items-center space-x-3 mb-8">
+                    <div class="w-12 h-12 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-2xl">cloud_upload</span>
+                    </div>
+                    <h2 class="text-2xl font-black dark:text-white">Agregar Nuevo Recurso</h2>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="space-y-6 relative z-10">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="upload_content">
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">¿En qué módulo quieres guardar esto?</label>
+                        <select name="module_id" required class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors">
+                            <option value="">Selecciona un módulo...</option>
+                            {% for module in modules %}
+                                <option value="{{ module.id }}">Módulo {{ module.order }}: {{ module.title }}</option>
+                            {% empty %}
+                                <option value="" disabled>Primero crea un módulo en el panel derecho ➡️</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Título del Recurso</label>
+                            <input type="text" name="title" required placeholder="Ej. Diapositivas Clase 1" class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Formato</label>
+                            <select name="content_type" id="contentType" required onchange="toggleFields()" class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors">
+                                <option value="">Selecciona qué vas a subir...</option>
+                                <option value="file">Documento PDF (IA extraerá texto OCR)</option>
+                                <option value="image">Imagen (IA generará descripción)</option>
+                                <option value="video">Enlace de Video (YouTube)</option>
+                                <option value="text">Texto / Artículo Escrito</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="fileField" class="hidden bg-blue-50/50 dark:bg-blue-900/10 p-6 rounded-2xl border-2 border-dashed border-blue-200 dark:border-blue-800/50 transition-all">
+                        <label class="block text-sm font-bold text-blue-800 dark:text-blue-300 mb-3">Subir Archivo (.pdf, .jpg, .png)</label>
+                        <input type="file" name="file_upload" class="w-full text-gray-900 cursor-pointer file:mr-4 file:py-3 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 dark:text-gray-300 transition-colors">
+                        <p class="mt-4 text-sm text-blue-600 dark:text-blue-400 flex items-center"><span class="material-symbols-outlined mr-1 text-[18px]">auto_awesome</span> <span class="font-bold mr-1">EduAccess IA:</span> Analizaremos este archivo automáticamente para garantizar accesibilidad.</p>
+                    </div>
+
+                    <div id="videoField" class="hidden">
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">URL del Video (YouTube)</label>
+                        <input type="url" name="video_url" placeholder="https://youtube.com/watch?v=..." class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors">
+                    </div>
+
+                    <div id="textField" class="hidden">
+                        <label class="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Contenido de Texto</label>
+                        <textarea id="richTextArea" name="text_content" rows="6" placeholder="Escribe aquí el contenido de la clase..." class="w-full bg-gray-50 border border-gray-300 text-gray-900 rounded-xl p-4 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-colors"></textarea>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 font-bold rounded-xl text-lg px-5 py-4 mt-4 text-center shadow-lg transition-transform hover:-translate-y-0.5 opacity-50 cursor-not-allowed" disabled>
+                        Guardar en el Curso
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1 space-y-8">
+
+            <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-[2rem] border border-blue-100 dark:border-blue-800 shadow-sm">
+                <div class="flex items-center text-blue-700 dark:text-blue-300 mb-4">
+                    <span class="material-symbols-outlined mr-2 text-2xl">add_box</span>
+                    <h2 class="text-xl font-bold">Crear Módulo</h2>
+                </div>
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="create_module">
+
+                    <div class="space-y-4">
+                        <input type="text" name="module_title" required placeholder="Ej. Unidad 1: Introducción" class="w-full bg-white border border-blue-200 text-gray-900 rounded-xl p-3 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+
+                        <textarea name="module_description" rows="2" placeholder="Breve descripción del módulo..." class="w-full bg-white border border-blue-200 text-gray-900 rounded-xl p-3 text-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"></textarea>
+
+                        <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 font-bold rounded-xl text-sm px-4 py-3 transition-colors shadow">
+                            Guardar Módulo
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700">
+                <h2 class="text-lg font-bold mb-4 dark:text-white flex items-center">
+                    <span class="material-symbols-outlined mr-2 text-gray-400">format_list_bulleted</span>
+                    Estructura del Curso
+                </h2>
+
+                <div class="space-y-3">
+                    {% for module in modules %}
+                    <details class="group bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600 [&_summary::-webkit-details-marker]:hidden">
+                        <summary class="flex justify-between items-center p-4 cursor-pointer select-none">
+                            <div class="pr-2">
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Módulo {{ module.order }}</span>
+                                <p class="font-bold text-gray-800 dark:text-gray-200 text-sm leading-tight mt-0.5">{{ module.title }}</p>
+                            </div>
+                            <div class="flex items-center shrink-0">
+                                <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-1 rounded-lg dark:bg-blue-900/50 dark:text-blue-300 mr-2">
+                                    {{ module.contents.count }} items
+                                </span>
+                                <span class="material-symbols-outlined text-gray-400 transition duration-300 group-open:-rotate-180">expand_more</span>
+                            </div>
+                        </summary>
+
+                        <div class="px-3 pb-3">
+                            <div class="border-t border-gray-200 dark:border-gray-600 pt-3 mt-1 space-y-2">
+                                {% for item in module.contents.all %}
+                                <div class="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-xl border border-gray-100 dark:border-gray-700 hover:border-blue-300 transition-colors shadow-sm">
+                                    <div class="flex items-center overflow-hidden mr-2">
+                                        <span class="material-symbols-outlined text-lg text-gray-400 mr-2 shrink-0">
+                                            {% if item.content_type == 'file' %}picture_as_pdf
+                                            {% elif item.content_type == 'video' %}play_circle
+                                            {% elif item.content_type == 'image' %}image
+                                            {% else %}description{% endif %}
+                                        </span>
+                                        <span class="text-xs font-semibold text-gray-600 dark:text-gray-300 truncate" title="{{ item.title }}">{{ item.title }}</span>
+                                    </div>
+
+                                    <div class="flex space-x-1.5 shrink-0">
+                                        <a href="{% url 'edit_content' offering.id item.id %}" class="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors" title="Editar">
+                                            <span class="material-symbols-outlined text-[16px]">edit</span>
+                                        </a>
+                                        <form method="POST" action="{% url 'delete_content' offering.id item.id %}" onsubmit="return confirm('¿Seguro que deseas eliminar este recurso para siempre?');" class="m-0">
+                                            {% csrf_token %}
+                                            <button type="submit" class="w-8 h-8 flex items-center justify-center bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors" title="Eliminar">
+                                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% empty %}
+                                <p class="text-xs text-gray-400 italic text-center py-3">Módulo vacío.</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </details>
+                    {% empty %}
+                    <div class="text-center py-8 text-gray-400">
+                        <span class="material-symbols-outlined text-5xl mb-2 opacity-30">inventory_2</span>
+                        <p class="text-sm">Aún no hay módulos.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleFields() {
+        const type = document.getElementById('contentType').value;
+        const btn = document.getElementById('submitBtn');
+
+        document.getElementById('fileField').classList.add('hidden');
+        document.getElementById('videoField').classList.add('hidden');
+        document.getElementById('textField').classList.add('hidden');
+
+        if (type === 'image' || type === 'file') {
+            document.getElementById('fileField').classList.remove('hidden');
+        } else if (type === 'video') {
+            document.getElementById('videoField').classList.remove('hidden');
+        } else if (type === 'text') {
+            document.getElementById('textField').classList.remove('hidden');
+        }
+
+        if (type !== "") {
+            btn.disabled = false;
+            btn.classList.remove("opacity-50", "cursor-not-allowed");
+
+            if (type === 'image' || type === 'file') {
+                btn.innerHTML = '<span class="flex items-center justify-center"><span class="material-symbols-outlined mr-2">auto_awesome</span> Procesar con IA y Guardar</span>';
+            } else {
+                btn.innerHTML = 'Guardar en el Curso';
+            }
+        } else {
+            btn.disabled = true;
+            btn.classList.add("opacity-50", "cursor-not-allowed");
+            btn.innerHTML = 'Guardar en el Curso';
+        }
+    }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js"></script>
+<script>
+    // 1. Detectamos si la página (etiqueta <html>) tiene activa la clase 'dark' de Tailwind
+    const isDarkMode = document.documentElement.classList.contains('dark');
+
+    // 2. Inicializamos el editor
+    tinymce.init({
+        selector: '#richTextArea',
+        plugins: 'lists link',
+        toolbar: 'blocks | bold italic underline | alignleft aligncenter alignright | bullist numlist | link',
+        menubar: false,
+        branding: false,
+        height: 350,
+        // 3. Le pasamos la variable para que cambie su piel y colores internos
+        skin: isDarkMode ? "oxide-dark" : "oxide",
+        content_css: isDarkMode ? "dark" : "default",
+        setup: function (editor) {
+            editor.on('change', function () {
+                editor.save();
+            });
+        }
+    });
+</script>
+{% endblock %}

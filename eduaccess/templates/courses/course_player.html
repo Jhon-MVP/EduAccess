@@ -1,144 +1,198 @@
 {% extends "base_student.html" %}
 {% load static %}
 
-{% block title %}{{ active_module.title }}{% endblock %}
+{% block title %}{{ active_module.title }} - EduAccess{% endblock %}
 
 {% block extra_head %}
 <style>
-    .active-module-gradient {
-        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    /* Estilos Premium para la lección */
+    .active-module-indicator {
+        background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+        box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39);
     }
-    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(30, 64, 175, 0.2); border-radius: 10px; }
-    .rich-content { font-family: 'Inter', system-ui, sans-serif; }
-    .rich-content h2 { font-size: 1.875rem; font-weight: 800; color: #111827; margin-top: 3.5rem; margin-bottom: 1.25rem; }
-    .rich-content p { font-size: 1.125rem; line-height: 1.8; color: #4b5563; margin-bottom: 1.5rem; }
-    .video-container-pro { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 1.5rem; margin: 4rem 0; shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2); }
-    .video-container-pro iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-    .btn-audio-ia { transition: all 0.3s ease; }
-    .btn-audio-ia:hover { transform: scale(1.1); }
+
+    .rich-content {
+        font-family: 'Inter', system-ui, sans-serif;
+        font-size: 1.125rem;
+        line-height: 1.8;
+        color: #374151;
+    }
+    .dark .rich-content { color: #d1d5db; }
+
+    .rich-content h2, .rich-content h3 {
+        color: #111827;
+        font-weight: 800;
+        margin-top: 3rem;
+        margin-bottom: 1rem;
+        letter-spacing: -0.025em;
+    }
+    .dark .rich-content h2, .dark .rich-content h3 { color: #f9fafb; }
+
+    .hover-scale { transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .hover-scale:hover { transform: translateY(-4px); }
+
+    @keyframes pulse-ring {
+        0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+        100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+    .is-playing { animation: pulse-ring 2s infinite; background-color: #10b981 !important; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="flex h-screen overflow-hidden bg-white dark:bg-gray-950">
+<div class="flex h-[calc(100vh-5rem)] overflow-hidden bg-gray-50 dark:bg-[#0f172a]">
 
-    <aside class="w-64 flex-shrink-0 bg-blue-700 dark:bg-slate-900 border-r border-blue-800 flex flex-col h-full z-20 hidden md:flex">
+    <aside class="w-80 flex-shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col h-full z-20 hidden lg:flex shadow-sm">
+        <div class="p-6 border-b border-gray-100 dark:border-gray-800 shrink-0">
+            <a href="{% url 'student_home' %}" class="inline-flex items-center text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 font-bold transition-colors group">
+                <span class="material-symbols-outlined mr-2 transition-transform group-hover:-translate-x-1">arrow_back</span>
+                <span>Volver a mis cursos</span>
+            </a>
+        </div>
+
         <div class="p-6 flex-1 overflow-y-auto custom-scrollbar">
-            <nav class="space-y-2 mt-4">
+            <nav class="space-y-3">
                 {% for module in modules %}
                 <a href="{% url 'course_module_detail' offering.id module.id %}"
-                   class="flex items-start px-4 py-3 rounded-xl text-xs font-bold transition-all
+                   class="flex items-center p-4 rounded-2xl transition-all duration-200 group
                    {% if module.id == active_module.id %}
-                   active-module-gradient text-white shadow-lg
+                        active-module-indicator text-white shadow-md
                    {% else %}
-                   text-blue-100 hover:bg-blue-600/50
+                        hover:bg-blue-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 border border-transparent hover:border-blue-100 dark:hover:border-gray-700
                    {% endif %}">
-                    <span class="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded bg-black/20 mr-3 text-[9px]">
+                    <span class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-sm font-bold mr-4
+                        {% if module.id == active_module.id %} bg-white/20 text-white {% else %} bg-gray-100 dark:bg-gray-800 text-gray-500 group-hover:bg-blue-200 dark:group-hover:bg-gray-700 {% endif %}">
                         {{ module.order }}
                     </span>
-                    <span class="leading-tight">{{ module.title }}</span>
+                    <span class="font-semibold leading-tight flex-1">{{ module.title }}</span>
+                    {% if module.id == active_module.id %}
+                        <span class="material-symbols-outlined text-white/80">play_circle</span>
+                    {% endif %}
                 </a>
                 {% endfor %}
             </nav>
         </div>
     </aside>
 
-    <main class="flex-1 h-full overflow-y-auto bg-white dark:bg-gray-950">
-        <header class="max-w-4xl mx-auto pt-20 px-10">
-            <h1 class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">
+    <main class="flex-1 h-full overflow-y-auto scroll-smooth focus:outline-none" tabindex="-1" id="main-content">
+        <header class="max-w-4xl mx-auto pt-16 px-8 md:px-12 lg:px-16 mb-12">
+            <div class="inline-flex items-center space-x-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-4 py-1.5 rounded-full text-sm font-bold mb-6">
+                <span class="material-symbols-outlined text-sm">menu_book</span>
+                <span>Módulo {{ active_module.order }}</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-gray-900 dark:text-white mb-6 leading-tight tracking-tight">
                 {{ active_module.title }}
             </h1>
             {% if active_module.description %}
-            <p class="text-xl text-gray-500 border-l-4 border-blue-600 pl-8">
+            <p class="text-xl text-gray-600 dark:text-gray-400 border-l-4 border-blue-500 pl-6 py-2 bg-gradient-to-r from-blue-50/50 to-transparent dark:from-blue-900/10">
                 {{ active_module.description }}
             </p>
             {% endif %}
-            <hr class="mt-10 border-gray-100">
         </header>
 
-        <article class="max-w-4xl mx-auto py-12 px-10 pb-48 rich-content">
+        <article class="max-w-4xl mx-auto px-8 md:px-12 lg:px-16 pb-32 rich-content">
             {% for item in contents %}
-                <div class="mb-16 last:mb-0">
+                <div class="mb-20 last:mb-0">
 
                     {# 1. TEXTO #}
                     {% if item.content_type == 'text' %}
-                        <div class="prose prose-blue lg:prose-xl dark:prose-invert max-w-none">
-                            {{ item.text_content|safe|linebreaks }}
+                        <div class="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                            {{ item.text_content|safe }}
                         </div>
 
                     {# 2. VIDEO #}
                     {% elif item.content_type == 'video' %}
-                        <div class="video-container-pro">
-                            <iframe src="{{ item.video_url }}" allowfullscreen></iframe>
+                        <div class="rounded-3xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800 bg-black aspect-video relative group">
+                            <iframe src="{{ item.video_url }}" class="absolute inset-0 w-full h-full" allowfullscreen aria-label="Video"></iframe>
                         </div>
 
-                    {# 3. IMAGEN #}
+                    {# 3. IMAGEN (CON FILTRO DE ACCESIBILIDAD) #}
                     {% elif item.content_type == 'image' %}
                         {% if item.file_upload %}
-                        <figure class="my-16">
-                            <div class="relative rounded-3xl overflow-hidden shadow-2xl border border-gray-100">
-                                <img src="{{ item.file_upload.url }}" alt="{{ item.title }}" class="w-full">
-                                {% if item.ai_accessibility_text %}
-                                <button onclick="leerTexto('{{ item.ai_accessibility_text|escapejs }}')"
-                                        class="btn-audio-ia absolute bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 flex items-center justify-center">
-                                    <span class="material-icons">volume_up</span>
-                                </button>
+                        <figure class="my-12">
+                            <div class="relative rounded-[2rem] overflow-hidden shadow-xl border border-gray-200 dark:border-gray-800 bg-white">
+                                <img src="{{ item.file_upload.url }}" alt="{{ item.title }}" class="w-full h-auto object-cover">
+
+                                {# BOTÓN DE AUDIO: Solo si tiene discapacidad visual o activó descripción de audio #}
+                                {% if accessibility.disability_type == 'VISUAL' or accessibility.audio_description %}
+                                    {% if item.ai_accessibility_text %}
+                                    <button onclick="reproducirIA(this, '{{ item.ai_accessibility_text|escapejs }}')"
+                                            class="absolute bottom-6 right-6 bg-blue-600 text-white w-14 h-14 rounded-full shadow-2xl hover:bg-blue-700 flex items-center justify-center transition-all hover:scale-110">
+                                        <span class="material-symbols-outlined text-3xl btn-icon">volume_up</span>
+                                    </button>
+                                    {% endif %}
                                 {% endif %}
                             </div>
-                            {% if item.ai_accessibility_text %}
-                                <div class="mt-6 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100">
-                                    <p class="text-sm text-blue-800 dark:text-blue-300 italic">
-                                        <span class="font-black uppercase text-[10px] block mb-1">Descripción de IA</span>
-                                        {{ item.ai_accessibility_text }}
-                                    </p>
-                                </div>
+
+                            {# CUADRO DE TEXTO IA: Solo para discapacidad visual #}
+                            {% if accessibility.disability_type == 'VISUAL' and item.ai_accessibility_text %}
+                                <figcaption class="mt-6 p-6 md:p-8 bg-blue-50 dark:bg-[#1e293b] rounded-2xl border border-blue-100 dark:border-slate-700">
+                                    <div class="flex items-center space-x-2 mb-3">
+                                        <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">auto_awesome</span>
+                                        <span class="font-bold text-sm text-blue-800 dark:text-blue-300 uppercase">Descripción Inclusiva</span>
+                                    </div>
+                                    <p class="text-gray-700 dark:text-gray-300">{{ item.ai_accessibility_text }}</p>
+                                </figcaption>
                             {% endif %}
                         </figure>
                         {% endif %}
 
-                    {# 4. ARCHIVO/PDF #}
+                    {# 4. PDF (CON FILTRO DE ACCESIBILIDAD) #}
                     {% elif item.content_type == 'file' %}
                         {% if item.file_upload %}
-                        <div class="bg-gray-50 dark:bg-slate-900 rounded-[2rem] p-8 border-2 border-dashed border-gray-200">
-                            <div class="flex items-center justify-between mb-6">
-                                <div class="flex items-center space-x-4">
-                                    <span class="material-icons text-4xl text-blue-600">description</span>
-                                    <h3 class="text-xl font-bold">{{ item.title }}</h3>
-                                </div>
-                                <a href="{{ item.file_upload.url }}" class="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg">Descargar</a>
-                            </div>
-                            {% if item.ai_accessibility_text %}
-                                <div class="bg-white dark:bg-gray-950 p-6 rounded-2xl shadow-sm border border-gray-100">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-[10px] font-black text-blue-600 uppercase tracking-widest">Texto procesado por IA</span>
-                                        <button onclick="leerTexto('{{ item.ai_accessibility_text|escapejs }}')" class="text-blue-600 text-sm font-bold flex items-center">
-                                            <span class="material-icons text-sm mr-1">play_circle</span> Escuchar
-                                        </button>
+                        <div class="hover-scale bg-white dark:bg-gray-900 rounded-[2rem] p-8 border-2 border-dashed border-gray-300 dark:border-gray-700 shadow-sm relative overflow-hidden">
+                            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
+                                <div class="flex items-center space-x-5">
+                                    <div class="w-16 h-16 bg-red-100 dark:bg-red-900/30 text-red-600 rounded-2xl flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-4xl">picture_as_pdf</span>
                                     </div>
-                                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed italic">{{ item.ai_accessibility_text|linebreaks }}</p>
+                                    <div>
+                                        <h3 class="text-xl font-bold m-0 dark:text-white">{{ item.title }}</h3>
+                                        <p class="text-sm text-gray-500 mt-1">Material Original (PDF)</p>
+                                    </div>
+                                </div>
+                                <a href="{{ item.file_upload.url }}" download class="w-full md:w-auto text-center bg-gray-200 dark:bg-gray-800 dark:text-gray-200 px-6 py-3 rounded-xl font-bold">
+                                    <span class="material-symbols-outlined align-middle mr-1">download</span> PDF Original
+                                </a>
+                            </div>
+
+                            {# SECCIÓN OCR: Solo si el estudiante tiene discapacidad visual #}
+                            {% if accessibility.disability_type == 'VISUAL' and item.ai_accessibility_text %}
+                                <div class="mt-8 pt-8 border-t border-gray-200 dark:border-gray-800">
+                                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between mb-4 gap-4">
+                                        <div class="flex items-center space-x-2 text-green-600 dark:text-green-500">
+                                            <span class="material-symbols-outlined">document_scanner</span>
+                                            <span class="text-sm font-bold uppercase">Adaptación OCR Accesible</span>
+                                        </div>
+                                        <div class="flex space-x-3 w-full md:w-auto">
+                                            <button onclick="reproducirIA(this, '{{ item.ai_accessibility_text|escapejs }}')" class="flex-1 md:flex-none flex items-center justify-center bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-4 py-2 rounded-lg font-bold">
+                                                <span class="material-symbols-outlined mr-2 btn-icon">play_arrow</span> Escuchar
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-black/20 p-6 rounded-xl max-h-64 overflow-y-auto">
+                                        <p class="text-gray-600 dark:text-gray-400 text-sm whitespace-pre-line">{{ item.ai_accessibility_text }}</p>
+                                    </div>
                                 </div>
                             {% endif %}
                         </div>
                         {% endif %}
-
-                    {# 5. EVALUACIÓN #}
-                    {% elif item.content_type == 'assessment' %}
-                        <div class="my-20 p-12 bg-gray-900 rounded-[2.5rem] text-center shadow-2xl">
-                            <h3 class="text-3xl font-black text-white mb-4">{{ item.title }}</h3>
-                            <p class="text-gray-400 mb-8 max-w-md mx-auto">Completa el desafío final de esta lección.</p>
-                            <a href="#" class="inline-block px-12 py-4 bg-blue-600 text-white rounded-2xl font-black">INICIAR →</a>
-                        </div>
                     {% endif %}
-
                 </div>
             {% endfor %}
 
-            <footer class="mt-20 pt-16 border-t-2 border-gray-50 flex justify-center">
+            <footer class="mt-24 pt-12 border-t-2 border-gray-100 dark:border-gray-800 flex justify-center">
                 <form method="POST" action="{% url 'complete_module' offering.id active_module.id %}">
                     {% csrf_token %}
-                    <button class="px-20 py-5 bg-blue-600 text-white rounded-2xl font-black text-xl shadow-xl hover:bg-blue-700">
-                        {% if progress.completed %} ✓ COMPLETADA {% else %} FINALIZAR {% endif %}
+                    <button type="submit" class="px-12 py-5 bg-gradient-to-r {% if progress.completed %}from-green-500 to-emerald-600{% else %}from-blue-600 to-indigo-600{% endif %} text-white rounded-2xl font-black text-xl shadow-xl transition-all hover:-translate-y-1">
+                        <span class="relative flex items-center justify-center space-x-3">
+                            {% if progress.completed %}
+                                <span class="material-symbols-outlined">task_alt</span> <span>LECCIÓN COMPLETADA</span>
+                            {% else %}
+                                <span>FINALIZAR LECCIÓN</span> <span class="material-symbols-outlined">arrow_forward</span>
+                            {% endif %}
+                        </span>
                     </button>
                 </form>
             </footer>
@@ -147,13 +201,41 @@
 </div>
 
 <script>
-    function leerTexto(texto) {
+    let synth = window.speechSynthesis;
+    let utterance = null;
+    let botonActivo = null;
+
+    function reproducirIA(botonElt, texto) {
         if (!texto) return;
-        window.speechSynthesis.cancel();
-        const mensaje = new SpeechSynthesisUtterance(texto);
-        mensaje.lang = 'es-EC';
-        mensaje.rate = 0.95;
-        window.speechSynthesis.speak(mensaje);
+        if (synth.speaking && botonActivo === botonElt) {
+            synth.cancel();
+            resetearBoton(botonActivo);
+            botonActivo = null;
+            return;
+        }
+        if (botonActivo) resetearBoton(botonActivo);
+        synth.cancel();
+        botonActivo = botonElt;
+        botonElt.classList.add('is-playing');
+        const icon = botonElt.querySelector('.btn-icon');
+        if (icon) icon.innerText = 'stop';
+
+        utterance = new SpeechSynthesisUtterance(texto);
+        utterance.lang = 'es-EC';
+        utterance.rate = 0.95;
+        utterance.onend = function() { resetearBoton(botonActivo); botonActivo = null; };
+        synth.speak(utterance);
     }
+
+    function resetearBoton(boton) {
+        if (!boton) return;
+        boton.classList.remove('is-playing');
+        const icon = boton.querySelector('.btn-icon');
+        if (icon) {
+            if(boton.classList.contains('absolute')) icon.innerText = 'volume_up';
+            else icon.innerText = 'play_arrow';
+        }
+    }
+    window.addEventListener("beforeunload", () => synth.cancel());
 </script>
 {% endblock %}
