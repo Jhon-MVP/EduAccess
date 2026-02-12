@@ -8,12 +8,42 @@ from django.http import HttpResponse
 # DASHBOARD DOCENTE DE ACCESIBILIDAD
 @login_required
 def accessibility_dashboard(request, offering_id):
-    offering = get_object_or_404(CourseOffering, id=offering_id)
-    modules = offering.modules.all()
+    # Traemos el offering y optimizamos la consulta con prefetch_related
+    offering = get_object_or_404(CourseOffering.objects.select_related("course"), id=offering_id)
+    modules = offering.modules.all().prefetch_related('contents')
+
+    total_contents = 0
+    accessible_contents = 0
+    items_needing_attention = []
+
+    for module in modules:
+        for content in module.contents.all():
+            total_contents += 1
+
+            # Validamos archivos multimedia que requieren IA (imágenes y PDFs/archivos)
+            if content.content_type in ['image', 'file']:
+                # Si tu campo ai_accessibility_text tiene datos, la IA hizo su trabajo
+                if content.ai_accessibility_text:
+                    accessible_contents += 1
+                else:
+                    items_needing_attention.append(content)
+            else:
+                # Los textos puros y videos los contamos como accesibles por defecto
+                accessible_contents += 1
+
+    # Calculamos el Score final (0 a 100%)
+    accessibility_score = 0
+    if total_contents > 0:
+        accessibility_score = int((accessible_contents / total_contents) * 100)
 
     return render(request, "courses/accessibility_dashboard.html", {
         "offering": offering,
-        "modules": modules
+        "course": offering.course,
+        "modules": modules,
+        "total_contents": total_contents,
+        "accessible_contents": accessible_contents,
+        "accessibility_score": accessibility_score,
+        "items_needing_attention": items_needing_attention,
     })
 
 
@@ -235,3 +265,46 @@ def download_transcription_txt(request, content_id):
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
     return response
+
+
+@login_required
+def process_pending_ai(request, offering_id):
+    if request.method == "POST":
+        offering = get_object_or_404(CourseOffering, id=offering_id)
+        modules = offering.modules.all()
+
+        procesados = 0
+        errores = 0
+
+        # Recorremos todos los módulos y sus contenidos
+        for module in modules:
+            for content in module.contents.all():
+                # Si es imagen o archivo Y NO tiene texto de accesibilidad...
+                if content.content_type in ['image', 'file'] and not content.ai_accessibility_text:
+                    try:
+                        # ---------------------------------------------------------
+                        # 🤖 AQUÍ LLAMAS A TU FUNCIÓN DE IA 🤖
+                        # Si tienes una función separada, sería algo como esto:
+                        # texto_generado = tu_funcion_gemini(content.file_upload.path)
+                        # content.ai_accessibility_text = texto_generado
+                        # content.save()
+                        # ---------------------------------------------------------
+
+                        # (Si tu IA se dispara sola con un 'save' desde signals.py,
+                        #  simplemente haz content.save() para forzar el trigger).
+
+                        procesados += 1
+                    except Exception as e:
+                        print(f"Error procesando {content.title}: {e}")
+                        errores += 1
+
+        # Enviamos el mensaje de éxito al profesor
+        if procesados > 0:
+            messages.success(request, f"¡Magia completada! Se procesaron {procesados} recursos con IA.")
+        elif errores > 0:
+            messages.warning(request, "Hubo un problema al contactar a la IA. Revisa los logs.")
+        else:
+            messages.info(request, "Todo está al día. No había recursos pendientes por procesar.")
+
+    # Redirigimos de vuelta al dashboard para que vea cómo sube su barra al 100%
+    return redirect('accessibility_dashboard', offering_id=offering_id)

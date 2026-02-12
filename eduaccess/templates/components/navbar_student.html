@@ -3,7 +3,7 @@
 <div class="flex justify-between h-20 items-center">
 
 <div class="flex items-center space-x-8">
-<a href="{% if request.user.userprofile.role == 'TEACHER' %}{% url 'teacher_home' %}{% else %}{% url 'student_home' %}{% endif %}" class="flex-shrink-0 flex items-center space-x-2 hover:opacity-90 transition">
+<a href="{% if request.user.userprofile.role == 'TEACHER' %}{% url 'teacher_home' %}{% else %}{% url 'student_home' %}{% endif %}" class="flex-shrink-0 flex items-center space-x-2 hover:opacity-90 transition focus:outline-none focus:ring-2 focus:ring-white rounded-lg p-1">
     <span class="material-symbols-outlined text-4xl">school</span>
     <span class="text-2xl font-bold tracking-tight">EduAccess</span>
 </a>
@@ -11,13 +11,13 @@
 
 <div class="flex items-center space-x-4">
 
-<button onclick="toggleDarkMode()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition backdrop-blur-sm">
+<button onclick="toggleDarkMode()" class="p-2 rounded-full bg-white/10 hover:bg-white/20 transition backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white">
     <span class="material-symbols-outlined block dark:hidden">dark_mode</span>
     <span class="material-symbols-outlined hidden dark:block">light_mode</span>
 </button>
 
-<div class="relative">
-<button onclick="toggleProfileMenu()" class="flex items-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition focus:outline-none">
+<div class="relative" id="profileContainer">
+<button onclick="toggleProfileMenu(event)" id="menu-perfil-btn" class="flex items-center space-x-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-full transition focus:outline-none focus:ring-2 focus:ring-white">
     <img class="w-8 h-8 rounded-full border-2 border-white/50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5NQ26Ab4QwPfZ2LDe2u03_rD3JbFbQc-chr7p_l1X2412f1TIIby9rdZnPwhP2jHi81_lmjbf-fi03Yd3QmgwSRvyUejWS3XbBmMpHC7phqSHNSvg0KwVzxbgWdFTYL6PrAMKTy94y6BOpeJgk82V1wQDR2UXGc-qldQ6sj-zmPVVTR1KyNs7nSmQwdpaV6Lgh5TNWVJtmBHTDWDwgvtw7tMPiPMcaXgjt5lsS6HzSjaRoGsyQUTOPGAvFKDkiPHCrd2y-5KpsSeR"/>
     <span class="font-medium hidden sm:block">{{ request.user.get_full_name }}</span>
     <span class="material-symbols-outlined text-sm">expand_more</span>
@@ -37,35 +37,44 @@
 
     <div class="p-2">
         <a href="{% if request.user.userprofile.role == 'TEACHER' %}{% url 'teacher_home' %}{% else %}{% url 'student_profile' %}{% endif %}"
-           class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-200">
+           class="flex items-center gap-3 px-4 py-3 rounded-2xl hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-700 dark:text-gray-200 transition-colors">
             <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
                 <span class="material-symbols-outlined">person</span>
             </div>
             <span class="font-bold text-sm">Mi cuenta</span>
         </a>
 
-        {# SECCIÓN ACCESIBILIDAD: Solo para estudiantes con discapacidad registrada #}
-        {% if request.user.userprofile.role == 'STUDENT' and request.user.userprofile.accessibility.disability_type and request.user.userprofile.accessibility.disability_type != 'NONE' %}
-            <div class="my-2 border-t border-gray-100 dark:border-gray-700 mx-4"></div>
-            <div class="px-4 py-2">
-                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Preferencias visuales</p>
-                <button onclick="toggleHighContrast()" class="w-full flex items-center justify-between p-3 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors group">
-                    <div class="flex items-center gap-3">
-                        <span class="material-symbols-outlined text-amber-500">contrast</span>
-                        <span class="font-bold text-xs text-gray-700 dark:text-gray-300">Alto Contraste</span>
-                    </div>
-                    <div id="contrastStatus" class="w-10 h-5 bg-gray-300 dark:bg-gray-700 rounded-full relative transition-colors border-2 border-transparent">
-                        <div class="dot absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all duration-300 shadow-sm"></div>
-                    </div>
-                </button>
-                <div class="mt-4">
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="changeFontSize(2)" class="py-2 bg-gray-50 dark:bg-gray-900 rounded-xl text-xs font-bold hover:bg-blue-100">A</button>
-                        <button onclick="changeFontSize(3)" class="py-2 bg-gray-50 dark:bg-gray-900 rounded-xl text-sm font-bold hover:bg-blue-100">A</button>
-                        <button onclick="changeFontSize(5)" class="py-2 bg-gray-50 dark:bg-gray-900 rounded-xl text-lg font-bold hover:bg-blue-100">A</button>
+        {% if request.user.userprofile.role == 'STUDENT' %}
+            <a href="{% url 'select_accessibility' %}"
+               class="flex items-center gap-3 px-4 py-3 mt-1 rounded-2xl hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-gray-700 dark:text-gray-200 transition-colors">
+                <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined">settings_accessibility</span>
+                </div>
+                <span class="font-bold text-sm">Perfil de Accesibilidad</span>
+            </a>
+
+            {% if request.user.userprofile.accessibility.disability_type and request.user.userprofile.accessibility.disability_type != 'NONE' %}
+                <div class="my-2 border-t border-gray-100 dark:border-gray-700 mx-4"></div>
+                <div class="px-4 py-2">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Preferencias visuales</p>
+                    <button onclick="toggleHighContrast()" class="w-full flex items-center justify-between p-3 rounded-2xl bg-gray-50 dark:bg-gray-900/50 hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-amber-500">contrast</span>
+                            <span class="font-bold text-xs text-gray-700 dark:text-gray-300">Alto Contraste</span>
+                        </div>
+                        <div id="contrastStatus" class="w-10 h-5 bg-gray-300 dark:bg-gray-700 rounded-full relative transition-colors border-2 border-transparent">
+                            <div class="dot absolute left-0.5 top-0.5 bg-white w-3 h-3 rounded-full transition-all duration-300"></div>
+                        </div>
+                    </button>
+                    <div class="mt-4">
+                        <div class="grid grid-cols-3 gap-2">
+                            <button onclick="changeFontSize(2)" class="py-2 bg-gray-50 dark:bg-gray-900 rounded-xl text-xs font-bold hover:bg-blue-100">A</button>
+                            <button onclick="changeFontSize(3)" class="py-2 bg-gray-50 dark:bg-gray-900 rounded-xl text-sm font-bold hover:bg-blue-100">A</button>
+                            <button onclick="changeFontSize(5)" class="py-2 bg-gray-50 dark:bg-gray-900 rounded-xl text-lg font-bold hover:bg-blue-100">A</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         {% endif %}
     </div>
 
@@ -86,7 +95,7 @@
 </nav>
 
 <script>
-// (Aquí van tus funciones toggleDarkMode, toggleHighContrast, etc. que ya tienes)
+// Funciones de utilidad (Dark mode, Contraste, Font size)
 function toggleDarkMode() {
   const html = document.documentElement;
   html.classList.toggle("dark");
@@ -109,7 +118,6 @@ function updateContrastUI(isEnabled) {
     const dot = document.querySelector('#contrastStatus .dot');
     const bg = document.querySelector('#contrastStatus');
     if(!dot || !bg) return;
-
     if(isEnabled) {
         dot.style.transform = "translateX(20px)";
         bg.classList.remove("bg-gray-300", "dark:bg-gray-700");
@@ -127,6 +135,23 @@ function changeFontSize(size) {
     localStorage.setItem("userFontSize", size);
 }
 
+// NUEVA LÓGICA DE MENÚ CORREGIDA
+function toggleProfileMenu(event) {
+    event.stopPropagation(); // Evita que el clic cierre el menú inmediatamente
+    document.getElementById("profileMenu").classList.toggle("hidden");
+}
+
+// Cerrar menú al hacer clic fuera, PERO permitir clics dentro
+window.addEventListener("click", function(e) {
+    const menu = document.getElementById("profileMenu");
+    const container = document.getElementById("profileContainer");
+
+    // Si el clic no fue dentro del contenedor del perfil, cerramos el menú
+    if (!container.contains(e.target)) {
+        menu.classList.add("hidden");
+    }
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     const isHC = localStorage.getItem("highContrast") === "true";
     if (isHC) {
@@ -135,16 +160,5 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const savedSize = localStorage.getItem("userFontSize");
     if (savedSize) changeFontSize(savedSize);
-});
-
-function toggleProfileMenu() {
-  document.getElementById("profileMenu").classList.toggle("hidden");
-}
-
-window.addEventListener("click", function(e) {
-  const menu = document.getElementById("profileMenu");
-  if (!e.target.closest(".relative")) {
-    menu.classList.add("hidden");
-  }
 });
 </script>

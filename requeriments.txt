@@ -1,0 +1,11 @@
+# Framework principal
+Django>=4.2.0
+
+# Requerido por Django para manejar campos de imagen (ImageField)
+Pillow>=10.0.0
+
+# App de terceros registrada en tu settings.py (INSTALLED_APPS)
+django-markdownify>=0.9.3
+
+# SDK Oficial de Google Gemini usado en services/accessibility.py
+google-generativeai>=0.4.0

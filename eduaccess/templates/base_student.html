@@ -82,12 +82,20 @@ body.high-contrast {
     color: #FFFF00 !important;
 }
 
-/* ⭐ SOLO TEXTO Y CONTENEDORES — NO MEDIA ⭐ */
-html.high-contrast-mode *:not(img):not(video):not(svg):not(canvas):not(iframe),
-body.high-contrast *:not(img):not(video):not(svg):not(canvas):not(iframe) {
+/* 🎯 FONDO SOLO A CONTENEDORES, NO A ELEMENTOS INTERNOS */
+html.high-contrast-mode body,
+html.high-contrast-mode main,
+html.high-contrast-mode section,
+html.high-contrast-mode article,
+html.high-contrast-mode aside,
+html.high-contrast-mode header,
+html.high-contrast-mode nav,
+html.high-contrast-mode footer,
+html.high-contrast-mode div:not(button):not(a):not(span) {
     background-color: #000000 !important;
     color: #FFFF00 !important;
 }
+
 
 /* ⭐ TODOS LOS BACKGROUNDS A NEGRO (SIN ROMPER PORTADAS) ⭐ */
 html.high-contrast-mode [class*="bg-"]:not(.course-image),
@@ -179,6 +187,133 @@ body.high-contrast *:focus {
 .course-image {
     background: transparent !important;
 }
+
+/* 1. MATA ABSOLUTAMENTE TODAS LAS SOMBRAS Y ANILLOS DE TAILWIND */
+    html.high-contrast-mode * {
+        --tw-ring-shadow: 0 0 transparent !important;
+        --tw-ring-offset-shadow: 0 0 transparent !important;
+        --tw-shadow: 0 0 transparent !important;
+        --tw-shadow-colored: 0 0 transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        transition: none !important; /* Evita parpadeos de color */
+        -webkit-tap-highlight-color: transparent !important; /* Quita el cuadro negro en móviles/táctil */
+    }
+
+    html.high-contrast-mode,
+    html.high-contrast-mode body,
+    html.high-contrast-mode div:not(img),
+    html.high-contrast-mode main,
+    html.high-contrast-mode header,
+    html.high-contrast-mode nav,
+    html.high-contrast-mode aside,
+    html.high-contrast-mode section,
+    html.high-contrast-mode article {
+        background-color: #000000 !important;
+        background-image: none !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    /* 1.5 Revelar las imágenes de los cursos eliminando velos oscuros */
+    html.high-contrast-mode .bg-gradient-to-t,
+    html.high-contrast-mode .inset-0,
+    html.high-contrast-mode .absolute.inset-0 {
+        background: transparent !important;
+        background-image: none !important;
+    }
+
+    /* 2. TEXTOS BLANCOS */
+    html.high-contrast-mode h1, html.high-contrast-mode h2, html.high-contrast-mode h3,
+    html.high-contrast-mode h4, html.high-contrast-mode p, html.high-contrast-mode span:not(.material-symbols-outlined),
+    html.high-contrast-mode ul, html.high-contrast-mode li {
+        color: #FFFFFF !important;
+    }
+
+    /* 3. BOTONES ESTADO NORMAL (Fondo negro, texto/borde amarillo) */
+    html.high-contrast-mode a,
+    html.high-contrast-mode button,
+    html.high-contrast-mode a[class],
+    html.high-contrast-mode button[class],
+    html.high-contrast-mode [role="menuitem"],
+    html.high-contrast-mode input[type="submit"] {
+        background: #000000 !important;
+        background-color: #000000 !important;
+        background-image: none !important;
+        color: #FFFF00 !important;
+        border: 2px solid #FFFF00 !important;
+        outline: none !important;
+    }
+
+html.high-contrast-mode a *,
+html.high-contrast-mode button *,
+html.high-contrast-mode [role="menuitem"] * {
+    color: inherit !important;   /* 🔥 CAMBIO CLAVE */
+    background: transparent !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+
+    /* 4. BOTONES ESTADO CLICK/HOVER (Fondo amarillo brillante, texto negro puro) */
+    html.high-contrast-mode a:hover,
+    html.high-contrast-mode a:focus,
+    html.high-contrast-mode a:active,
+    html.high-contrast-mode button:hover,
+    html.high-contrast-mode button:focus,
+    html.high-contrast-mode button:active,
+    html.high-contrast-mode [role="menuitem"]:hover,
+    html.high-contrast-mode [role="menuitem"]:focus,
+    html.high-contrast-mode input[type="submit"]:hover {
+        background: #FFFF00 !important;
+        background-color: #FFFF00 !important;
+        background-image: none !important;
+        color: #000000 !important;
+        border-color: #FFFF00 !important;
+    }
+
+    /* Textos/Iconos internos cambian a negro al hacer click */
+    html.high-contrast-mode a:hover *,
+    html.high-contrast-mode a:focus *,
+    html.high-contrast-mode a:active *,
+    html.high-contrast-mode button:hover *,
+    html.high-contrast-mode button:focus *,
+    html.high-contrast-mode button:active *,
+    html.high-contrast-mode [role="menuitem"]:hover * {
+        color: #000000 !important;
+    }
+
+    /* 5. MULTIMEDIA E IMÁGENES */
+    html.high-contrast-mode img,
+    html.high-contrast-mode iframe,
+    html.high-contrast-mode video {
+        border: 3px solid #00FFFF !important;
+        background-color: transparent !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+
+    /* 6. BARRAS DE PROGRESO */
+    html.high-contrast-mode .rounded-full.bg-gray-200,
+    html.high-contrast-mode .rounded-full.dark\:bg-gray-700 {
+        background: #000000 !important;
+        background-color: #000000 !important;
+        border: 2px solid #FFFFFF !important;
+    }
+    html.high-contrast-mode .rounded-full > div[style] {
+        background: #FFFF00 !important;
+        background-color: #FFFF00 !important;
+        background-image: none !important;
+    }
+
+    /* 7. SWITCH DE ALTO CONTRASTE */
+    html.high-contrast-mode #contrastStatus {
+        border: 2px solid #FFFF00 !important;
+        background: #000000 !important;
+    }
+    html.high-contrast-mode #contrastStatus .dot {
+        background: #FFFF00 !important;
+    }
 
 </style>
 </head>

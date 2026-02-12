@@ -36,4 +36,5 @@ urlpatterns = [
     path("<int:offering_id>/content/<int:content_id>/edit/", views.edit_content, name="edit_content"),
     path("<int:offering_id>/content/<int:content_id>/delete/", views.delete_content, name="delete_content"),
     path('content/<int:content_id>/download-txt/', views.download_transcription_txt, name='download_transcription_txt'),
+    path('<int:offering_id>/accessibility/process-ai/', views.process_pending_ai, name='process_pending_ai'),
 ]

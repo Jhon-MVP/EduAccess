@@ -1,50 +1,146 @@
-{% extends "base.html" %}
+{% extends "base_student.html" %}
+{% block title %}Dashboard de Accesibilidad - {{ course.name }}{% endblock %}
 
 {% block content %}
-<h1>Dashboard de Accesibilidad</h1>
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full space-y-8">
 
-<table border="1" cellpadding="6" cellspacing="0">
-    <thead>
-        <tr>
-            <th>Módulo</th>
-            <th>% Texto</th>
-            <th>% Alt Text</th>
-            <th>% Subtítulos</th>
-            <th>Accesible</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in dashboard_data %}
-        <tr>
-            <td>{{ item.module.title }}</td>
-            <td>{{ item.has_text|default:"-"|floatformat:1 }}%</td>
-            <td>{{ item.has_alt_text|default:"-"|floatformat:1 }}%</td>
-            <td>{{ item.has_captions|default:"-"|floatformat:1 }}%</td>
-            <td>
-                {% if item.overall_accessible %}
-                    ✅
-                {% else %}
-                    ❌
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5">No hay módulos registrados.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <header class="flex flex-col md:flex-row justify-between items-start md:items-end pb-6 border-b border-gray-200 dark:border-gray-700">
+        <div>
+            <span class="inline-flex items-center gap-1.5 py-1 px-3 rounded-md text-xs font-black tracking-widest uppercase bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 mb-3">
+                <span class="material-symbols-outlined text-[14px]">health_and_safety</span>
+                Auditoría A11y
+            </span>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Accesibilidad del Curso
+            </h1>
+            <p class="text-gray-500 dark:text-gray-400 font-medium">
+                {{ course.name }}
+            </p>
+        </div>
+        <div class="mt-4 md:mt-0 flex gap-3">
+            <a href="{% url 'teacher_home' %}" class="px-5 py-2.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl font-bold text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                Volver al panel
+            </a>
+            <form method="POST" action="{% url 'process_pending_ai' offering.id %}">
+                {% csrf_token %}
+                <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-500/30 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <span class="material-symbols-outlined text-sm">robot_2</span>
+                    Procesar IA Pendiente
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden">
+            <div class="absolute -right-6 -top-6 w-32 h-32 bg-emerald-50 dark:bg-emerald-900/20 rounded-full blur-2xl"></div>
+            <p class="text-sm font-black text-gray-400 uppercase tracking-widest mb-1">Score de Inclusión</p>
+            <div class="flex items-end gap-2 mb-4">
+                <span class="text-5xl font-black {% if accessibility_score >= 80 %}text-emerald-600 dark:text-emerald-400{% elif accessibility_score >= 50 %}text-amber-500{% else %}text-red-500{% endif %}">
+                    {{ accessibility_score }}%
+                </span>
+            </div>
+            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 mb-2">
+                <div class="h-2.5 rounded-full {% if accessibility_score >= 80 %}bg-emerald-500{% elif accessibility_score >= 50 %}bg-amber-500{% else %}bg-red-500{% endif %}" style="width: {{ accessibility_score }}%"></div>
+            </div>
+            <p class="text-xs font-bold text-gray-500 dark:text-gray-400">Objetivo WCAG AAA: 100%</p>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-center">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl">library_books</span>
+                </div>
+                <div>
+                    <p class="text-sm font-black text-gray-400 uppercase tracking-widest">Total Analizado</p>
+                    <p class="text-3xl font-black text-gray-900 dark:text-white">{{ total_contents }}<span class="text-lg text-gray-500 font-medium ml-1">archivos</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-[2rem] p-8 shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col justify-center">
+            <div class="flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl {% if items_needing_attention|length > 0 %}bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400{% else %}bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400{% endif %} flex items-center justify-center">
+                    <span class="material-symbols-outlined text-3xl">{% if items_needing_attention|length > 0 %}warning{% else %}check_circle{% endif %}</span>
+                </div>
+                <div>
+                    <p class="text-sm font-black text-gray-400 uppercase tracking-widest">Requiere Atención</p>
+                    <p class="text-3xl font-black text-gray-900 dark:text-white">{{ items_needing_attention|length }}<span class="text-lg text-gray-500 font-medium ml-1">pendientes</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-white dark:bg-gray-800 rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+        <div class="p-8 border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Desglose por Módulos</h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Verifica el estado de procesamiento OCR y descripciones generadas por IA de tus documentos e imágenes.</p>
+        </div>
+
+        <div class="divide-y divide-gray-100 dark:divide-gray-700">
+            {% for module in modules %}
+            <div class="p-8">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                    <span class="material-symbols-outlined text-blue-500">folder</span>
+                    {{ module.title }}
+                </h3>
+
+                <div class="space-y-3 pl-8">
+                    {% for content in module.contents.all %}
+                    <div class="flex items-center justify-between p-4 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700 transition">
+
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center
+                                {% if content.content_type == 'PDF' %}bg-red-100 text-red-600 dark:bg-red-900/30
+                                {% elif content.content_type == 'IMAGE' %}bg-purple-100 text-purple-600 dark:bg-purple-900/30
+                                {% else %}bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300{% endif %}">
+                                <span class="material-symbols-outlined text-xl">
+                                    {% if content.content_type == 'PDF' %}picture_as_pdf
+                                    {% elif content.content_type == 'IMAGE' %}image
+                                    {% else %}article{% endif %}
+                                </span>
+                            </div>
+
+                            <div>
+                                <p class="font-bold text-sm text-gray-900 dark:text-white">{{ content.title }}</p>
+                                <p class="text-xs font-medium text-gray-500 dark:text-gray-400 mt-0.5">Tipo: {{ content.get_content_type_display|default:content.content_type }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            {% if content.content_type in 'IMAGE,PDF' %}
+                                {% if content.ai_description or content.extracted_text %}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold">
+                                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                        Adaptado por IA
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold">
+                                        <span class="material-symbols-outlined text-[16px]">pending_actions</span>
+                                        Falta procesar
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300 text-xs font-bold">
+                                    <span class="material-symbols-outlined text-[16px]">done_all</span>
+                                    Nativo
+                                </span>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                    {% empty %}
+                    <p class="text-sm text-gray-500 italic">No hay contenidos en este módulo.</p>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="p-8 text-center">
+                <p class="text-gray-500 dark:text-gray-400">Aún no has creado módulos para este curso.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+</main>
 {% endblock %}
-
-{% for module in modules %}
-<h2>Módulo: {{ module.title }}</h2>
-<ul>
-    {% with summary=module.accessibility_summary %}
-    <li>Textos: {{ summary.has_text }}%</li>
-    <li>Alt Text: {{ summary.has_alt_text }}%</li>
-    <li>Subtítulos: {{ summary.has_captions }}%</li>
-    <li>Accesible global: {{ summary.overall_accessible }}</li>
-    {% endwith %}
-</ul>
-{% endfor %}

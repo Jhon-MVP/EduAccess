@@ -1,6 +1,6 @@
 import google.generativeai as genai
 from django.conf import settings
-import mimetypes  # <-- Importante para detectar si es PDF o Imagen
+import mimetypes
 
 
 def process_content_with_ia(instance):
