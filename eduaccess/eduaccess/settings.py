@@ -117,4 +117,4 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/users/login/"
 
 # Al final de eduaccess/settings.py
-GEMINI_API_KEY = 'AIzaSyCKOLAknSQajGqk31cJDIiIE0UlKyUnyYk'
+GEMINI_API_KEY = ''
